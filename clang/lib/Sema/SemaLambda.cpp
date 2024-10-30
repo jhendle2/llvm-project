@@ -26,7 +26,11 @@
 #include "clang/Sema/SemaOpenMP.h"
 #include "clang/Sema/Template.h"
 #include "llvm/ADT/STLExtras.h"
+#include "clang/Lex/Lexer.h"
 #include <optional>
+
+#include <iostream>
+#include <sys/cdefs.h>
 using namespace clang;
 using namespace sema;
 
@@ -2142,12 +2146,35 @@ ExprResult Sema::BuildLambdaExpr(SourceLocation StartLoc, SourceLocation EndLoc,
             if (!CurHasPreviousCapture && !IsLast) {
               // If there are no captures preceding this capture, remove the
               // following comma.
-              FixItRange = SourceRange(CaptureRange.getBegin(),
-                                       getLocForEndOfToken(CaptureRange.getEnd()));
+
+              // TODO: Original
+              // FixItRange = SourceRange(CaptureRange.getBegin(),
+              //                         getLocForEndOfToken(CaptureRange.getEnd()));
+
+              // TODO: Attempt (3) /// THIS MIGHT ACTAULLY WORK :D
+              auto NextToken = Lexer::findNextToken(CaptureRange.getEnd(), SourceMgr, getLangOpts());
+              FixItRange = SourceRange(CaptureRange.getBegin(), // FIXME: Maybe use (I+1) not Lexer::findNextToken
+                                              NextToken->getLocation());
+              // FIXME: Put in a check for std::optional returning no value
+
+              __unused int _x = 0;
+              // TODO: Attempt (1) -- Looks pretty good but missing initial &
+              // SourceRange NextCaptureRange = LSI->ExplicitCaptureRanges[I+1]; /* Jonah TODO: Find way to include `&` */
+              // FixItRange = SourceRange(CaptureRange.getBegin(),
+              //                         NextCaptureRange.getBegin());
+
+              // TODO: Attempt (2) -- Looks awful but I think this could work
+              // FixItRange = SourceRange(CaptureRange.getBegin(),
+              //                         Lexer::findLocationAfterToken(
+              //                           PrevCaptureLoc, tok::amp, SourceMgr,
+              //                           getLangOpts(),
+              //                           /*SkipTrailingWhitespaceAndNewLine=*/false));
+
             } else {
               // Otherwise, remove the comma since the last used capture.
               FixItRange = SourceRange(getLocForEndOfToken(PrevCaptureLoc),
                                        CaptureRange.getEnd());
+              __unused int _x = 0;
             }
           }
 
