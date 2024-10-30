@@ -2156,6 +2156,7 @@ ExprResult Sema::BuildLambdaExpr(SourceLocation StartLoc, SourceLocation EndLoc,
               FixItRange = SourceRange(CaptureRange.getBegin(), // FIXME: Maybe use (I+1) not Lexer::findNextToken
                                               NextToken->getLocation());
               // FIXME: Put in a check for std::optional returning no value
+              // FIXME: Add new test cases w/ whitespace to the ninja test file for lambda captures
 
               __unused int _x = 0;
               // TODO: Attempt (1) -- Looks pretty good but missing initial &
